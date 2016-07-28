@@ -1,0 +1,70 @@
+foul 1 vs foul 2
+
+Foul 1
+ 
+- breakpoints auto checks on blur (2)
+- interactive auto formats on blur (2)
+( 2 only ) - notification types ( alert,inline)
+
+auto messages ( 2 )
+- null
+- email
+- date
+- zip-state-match
+- zip
+- state
+- urls
+- ssn
+- numeric
+
+formats (2)
+- number, integer
+- float,decimal
+- pad,padded ( len, pad )
+- phone-us
+- credit-card
+- ssn, social-security-number
+- date-us
+- date-us-y2k
+- url, url-http
+- url-ftp
+- url-news ( not 2 )
+- uppercase
+
+tests
+- is,has,does,=
+- !,not
+- empty,blank,null
+- range,between, (low, max)
+- greater-than,>
+- less-than,<
+- email
+- length <- not a test ( not in 2 )
+(only 2) :length modfider 
+- number,float,decimal,numeric
+- valid_credit_card, valid_cc, vcc
+- date-us
+- date-us-y2k
+- password <- not a test
+( only 2) - password-strength 0 - 100 
+- ==,same-as,equal-to
+- password-verified, password-confirmed
+- blanks,spaces
+- url
+- url-http
+- url-ftp
+- url-news ( not 2 ) 
+- zip,zipcode,zipcode-us,zip-us
+- state,state-us,postalcode,poastalcode-us
+- zip-state-match,zip-state-match-us
+( only 2 ) - zip-matches-state 
+- ssn,social-security-number
+- file-type
+- file-type-image
+- file-type-executable
+- in ( 'list' 'of' 'literals' )
+
+Foul 2
+Support for literals in tests
+support for validation groups
+support for inline validation 

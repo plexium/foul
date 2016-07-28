@@ -1,0 +1,101 @@
+<html>
+<head><title>Foul Test</title>
+<style type="text/css">
+	body {font-family: garamond, times new roman;
+		background-color: #f0f0f0;
+		color: #87434D;
+	}
+
+	label {
+		float: left;
+		width: 150px;
+		text-align: right;
+		margin-right: 4px;
+		
+	}
+
+	.field {
+		clear: both;
+		display: block;
+		margin-top: 3px;		
+	}
+
+	h1 {
+	border-bottom: 1px solid;
+	}
+	
+	div.foul_error { display: inline; }
+
+</style>
+<script src="foul2.js" type="text/javascript"></script>
+</head>
+<body>
+<h1>Foul 2.0 Test</h1>
+
+<script type="text/javascript">
+   var test = new Foul.create();   
+</script>
+
+<form id="frm" name="frm" action="" method="post" onSubmit="return(test.validate())">
+
+<div class="field"><label for="firstname">First Name:</label><input type="text" class="required" message="First Name is required" name="firstname" /></div>
+<div class="field"><label for="lastname">Last Name:</label><input type="text" name="lastname" /></div>
+<div class="field"><label for="zip">Zip:</label><input id="zip" type="text" name="zip" /></div>
+<div class="field"><label for="state">State:</label><input id="state" type="text" name="state"  /><div id="foul_error_state" /></div>
+<div class="field"><label for="GPA">GPA:</label><input id="gpa" type="text" name="gpa" /></div>
+<div class="field"><label for="email">Email:</label><input id="email" type="text" name="email" /></div>
+<div class="field"><label for="Current Member">Current Member?:</label><input id="Current Member" type="checkbox" name="Current Member" ="Y" /></div>
+<div class="field"><label for="ssn">SSN:</label><input id="ssn" type="text" name="ssn" /><br />
+<div class="field"><label for="Years_A_Member">Years A Member:</label><div style="float: left;"><input id="Years_A_Member" type="radio" name="Years_A_Member" value="1" /> 1 Year<br />
+<input id="Years_A_Member" type="radio" name="Years_A_Member" value="2" /> 2 Years<br />
+<input id="Years_A_Member" type="radio" name="Years_A_Member" value="3" /> 3 Years<br /></div><br clear="all" />
+</div>
+<div class="field"><label for="password">Password:</label><input id="password" type="password" name="password" /></div>
+<div class="field"><label for="blanks">Blanks:</label><input id="blanks" type="text" name="blanks"  /></div>
+<div class="field"><label for="dob">DOB:</label><input id="dob" type="text" name="dob" /></div>
+<div class="field"><label for="credit">Blanks:</label><input id="credit" type="text" name="credit" /></div>
+<div class="field"><label for="url">Url:</label><input type="text" name="url" /></div>
+<div class="field"><label for="phone">Phone:</label><input type="text" name="phone" /></div>
+<div class="field"><label for="fileupload">File Upload:</label><input id="file-upload" type="file" name="file-upload" /></div>
+<div class="field"><label for="jobtitle">Job Title:</label><select name="jobtitle" ><option value="">-- Select One --<option value="1">Owner<option value="2">Designer<option value="3">Programmer</select></div>
+<div class="field"><input type="submit" name="submit" value="submit" /></div>
+</form>
+<script type="text/javascript">
+
+//test.when("~firstname~");
+//test.when("~lastname~");
+//test.when("~password~ is number",'password must not be a number');
+//test.when("~gpa~ is not number",'gpa must be a number');
+
+test.when("~password:length~ < 8",'PASSWORD MUST BE BIGGER');
+/*
+test.when("~email~ is not email",'email must be an email address');
+test.when("~blanks~ is not '  '",'blank field must be blank');
+test.when("~url~ not url",'url must be a url');
+test.when("~zip~ not zip",'zip must be a zip');
+test.when("~firstname~ not in 'bob' 'andy' 'Bryan'",'you must choose a name');
+test.when("~state~ not state",'enter a right state');
+test.when("~zip~ not zip-matches-state ~state~",'state doesn\'t match zip');
+test.when("'image.gif' not file-type 'gif exe bmp'",'images aren\'t right');
+test.when("~credit~ is not vcc",'please enter a valid credit card');
+test.when("~dob~ is not date-us",'please enter a valid date');
+test.when("~phone~");
+*/
+
+test.format('~state~ as uppercase');
+test.format('~phone~ as phone');
+test.format('~gpa~ as float');
+test.format('~ssn~ as ssn');
+test.format('~dob~ as date');
+test.format('~url~ as url');
+
+//test.setInteractive(true);
+test.setBreakpoint(true);
+test.setNotification('inline');
+test.setForm('frm');   
+
+
+</script>
+
+</body>
+</html>

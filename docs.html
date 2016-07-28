@@ -1,0 +1,528 @@
+<html>
+<head><title>Foul 2 Documentation</title>
+<style type="text/css">
+body {font-family: georgia, verdana, times new roman;
+	background-color: #f0f0f0;
+	color: #77333D;
+	margin: 30px 10% 20px 50px;
+	font-size: 0.8em;
+	line-height: 1.5em;
+}
+
+label {
+	float: left;
+	width: 150px;
+	text-align: right;
+	margin-right: 4px;
+	
+}
+
+.field {
+	clear: both;
+	display: block;
+	margin-top: 3px;		
+}
+
+pre {
+	margin: 20px;
+	border-left: 2px solid #87434D;
+	padding: 10px 0px 5px 10px;
+	background-color: #d0d0d0;
+	font-size: 1.2em;
+}
+
+pre .comment {
+	color: #008800;
+}
+
+h1 { border-bottom: 1px solid; margin-left: -30px; }
+
+h2 { margin-left: -20px; border-bottom: 1px solid}
+h2:first-letter {font-size: 1.8em; vertical-align: top; background-color: #c0c0c0; border-bottom: 0px;}
+
+h3 {margin-left: -10px;  border-bottom: 1px dashed; margin-top: 50px;}
+
+</style>
+<script src="prototype.js" type="text/javascript"></script>
+<script src="foul.js" type="text/javascript"></script>
+</head>
+<body>
+<h1>Foul 2.0 Documentation</h1>
+
+<p>Foul is a set of javascript classes which attempt to make client-side form validation
+as painless as possible. Please note, foul should not be a replacement for server-side validation
+since JavaScript can be turned off an even hacked within the browser. Foul is for the
+convenience of the user, not the author. A php based version of foul is in development which will
+provide server and client-side validation to forms.</p>
+
+<h2>1 Quick Start</h2>
+
+<p>The quick start guide will help you get started with foul without having to dive into hundreds
+of lines of documentation.</p>
+
+<p>First, to use foul, copy <strong>prototype.js</strong> and <strong>foul.js</strong>
+to a folder which is accessable by your web pages. 
+</p>
+
+<p>Next, copy and paste the following code between your &lt;head&gt; tags or near the top 
+of your web page. Make sure you point the src attribute to the location of these to js files.</p>
+
+<pre>
+&lt;script type="text/javascript" src="prototype.js"&gt;&lt/script&gt;
+&lt;script type="text/javascript" src="foul.js"&gt;&lt/script&gt;
+</pre>
+
+<p>By including foul.js, you've automatically created a foul object you can use named <em>foul</em>
+</p>
+
+<p>Now attach the foul object to your form by pasting the below code into your form tag.</p>
+
+<pre>
+onSubmit="return(foul.validate(this));"
+</pre>
+
+<p>Now all you have to do is use foul's various methods to add validation tests. Below is a 
+couple code examples.</p>
+
+<pre>
+&lt;script type="text/javascript"&gt;
+
+	<span class="comment">//this will add a test which verifies the input field named "First Name"
+	//is not null. If the test evaluates to true, then the next parameter is
+	//displayed in the validation alert ('First Name is a required field.')</span>
+	
+	foul.when( "~First Name~ is null", "First Name is a required field" );
+	
+	
+	<span class="comment">//this will check the input field named "Email" for a well-formed email address</span>
+	
+	foul.when( "~Email~ is not email", "Please enter a valid email address" );
+	
+	
+	<span class="comment">//this will perform a boolean test looking at two form fields in the test</span>
+	
+	foul.when( "~flag~ not null and ~flag-name~ is null", "Enter flag name" )
+
+&lt;/script&gt;
+</pre>
+
+<p>The field name must be enclosed in tilde's followed by the test to apply to 
+the field. For a complete list of the tests, check out the <a href="#ref">Test/Format Reference</a>.
+Below are a couple of foul shortcuts.
+</p>
+
+<pre>
+&lt;script type="text/javascript"&gt;
+
+	<span class="comment">//If no test is specified in the first parameter, foul assumes
+	//it's a null check. This will test for a null in the "First Name" field.</span>
+	
+	foul.when("~First Name~","First Name is a required field");
+	
+	<span class="comment">//This will do the same as above but auto create a message.
+	//The second parameter is optional and will use foul's built-in
+	//pattern matching to find the best error message to use.</span>
+	
+	foul.when("~First Name~")
+	
+	<span class="comment">//If you're really in a hurry, then this nifty method will
+	//auto-create a series of tests based on the names of the form fields. Usually making
+	//them all required. Also checking Email = valid email test, cc = valid credit card. </span>
+	
+	foul.allYourFormAreBelongToUs();
+
+
+&lt;/script&gt;
+</pre>
+
+<p>Foul has a couple options you can configure to control how the form reacts to input.<p>
+
+<h4>foul.interactive = [false|true]</h4>
+<p>This enables auto-formatting fields as the user tabs off of them. This is set to false by default. By
+setting to true, and installing the onBlur="foul.inspect(this)" event on text fields, the form will
+auto-format fields as the user fills out the form.</p>
+
+<pre>
+&lt;input type="text" name="First Name" onBlur="foul.inspect(this)" />&gt;
+
+<span class="comment">//alternativly, you could call the autoInspect method to install the 
+//inspection method on all fields.</span>
+foul.autoInspect(document.forms[0]);
+</pre>
+
+<h4>foul.breakpoints = [false|true]</h4>
+<p>This enables auto-testing fields as the user tabs off of them. This is set to false by default. By
+setting to true, and installing the onBlur="foul.inspect(this)" event on text fields, the form will
+auto-test fields as the user fills out the form.</p>
+
+<h4>foul.notification = ['alert'|'inline']</h4>
+<p>This is a new feature in Foul 2.0. This gives you the ability to change how the user is notified of
+validation errors. It is set to 'alert' by default and will respond with a JavaScript alert box. However,
+if you change this to 'inline', then foul will notify the user by inserting the error message next to the
+coorisponding input field.</p>
+
+<p>The 'inline' option inserts a DIV element with the class of 'foul-error' so you can control the look of
+the error. In addition, you can modify the template which is used to insert the message by setting the foul.error_template
+string.</p>
+
+<pre>
+foul.error_template = 
+'&lt;div id="foul_error_[[field]]" class="foul-error" style="display: inline;"&gt;[[error]]&lt;/div&gt;';
+</pre>
+
+<h2>2 Test Syntax</h2>
+
+<p>Foul uses a simple language to create tests to apply to form fields. This veers away from my usual
+method of thinking since I generally hate recreating a whole new language for anything, espeically
+something as minisicule as form validation. However, after lots of research and testing I decided
+that a new language, one which read makes sense to the author as to what it's validating, would be
+the optimal method. The fact that form validation is such a miniscule yet, begrudgingly required
+job reinforces an easy spoken-like language to define the validations. Why spend more time on it then
+you have too.</p>
+
+<p>One can speak what they expect in a form field easier and clearer than trying to express it using
+a mess of javascript code. For example, "When First Name is Blank, display a message" is easier to
+think of than, "if (document.frm.element['firstname'].value == ''){ alert('message'); }"</p>
+
+<p>Here is the basic syntax of a test:</p>
+
+<pre>
+<span class="comment">//tests are evaluated from left to right</span>
+~fieldname~ test [test [paremters]]*
+
+<span class="comment">//the results of tests passed as paramters are passed the test on the left.</span>
+~First Name~ is null
+    ^         ^  ^
+    |         |  |
+fieldname     tests
+
+<span class="comment">//here the length of the Zip Code field is calculated and tested against 5</span>
+~Zip Code~ length not == 5
+    ^         ^    ^  ^ ^
+    |         |    |  | |
+fieldname     tests+--+ parameter
+
+<span class="comment">//multiple tests can be strung together using 'and' and 'or' words.</span>
+~Zip Code~ length not == 5 and ~First Name~ is null
+
+<span class="comment">//paranthesis can be used to group boolean tests just like a conditional if</span>
+(~Zip Code~ length not == 5 and ~First Name~ is null) or ~Last Name~ null
+
+<span class="comment">//literal strings can be used now (a feature not available in foul 1.x)</span>
+~Package Type~ == '1 Day Air'
+</pre>
+
+<a name="ref" /><h2>3 Test/Format Reference</h2>
+
+<h3>Basic Tests</h3>
+
+<h4>is, ==, has, have, a, =, equal-to, same-as</h4>
+This is a pass through test used to make test writing friendlier. It does nothing.
+<pre>
+foul.when("~Field~ is same-as a number","This field must not be a number.");
+</pre>
+
+<h4>not, !, is-not, !=, &lt;&gt;</h4>
+This is a pass through inversion test used to invert the value of the test following it. 
+<pre>
+foul.when("~Field~ is not number","This field must be a number.");
+</pre>
+
+<h4>null, blank, empty, none</h4>
+This tests the input field for a null, blank or space filled value.
+<pre>
+foul.when("~Field~ blank","This field is required");
+</pre>
+
+<h4>number, numeric, integer</h4>
+<p>This evaluates to true when the input field is an integer. Decimals don't count. </p>
+<pre>
+foul.when("~Field~ is not number","This field must be a number");
+</pre>
+
+<h4>decimal, float</h4>
+<p>This evaluates to true when the input field is decimal or integer. </p>
+<pre>
+foul.when("~Field~ is not float","This field must be a number");
+</pre>
+
+<h4>email, e-mail</h4>
+<p>This will check an email address for well-formness using the name@domain.com pattern.
+Please note that if the field is null, the test will cancel and not fail. This would 
+require the use of a null test in conjunction with the email test.
+</p>
+<pre>
+foul.when("~Field~ is not email","Please enter a valid email address.");
+
+<span class="comment">//this will require the field and check for a valid email</span>
+foul.when("~Field~ not email or ~Field~ null","Please enter a valid email address.");
+</pre>
+
+<h4>blanks, spaces</h4>
+<p>This will check a field for spaces.</p>
+<pre>
+foul.when("~Field~ has spaces","Please don't enter spaces for this field.");
+</pre>
+
+<h3>Advanced Comparisons</h3>
+
+<h4>greater-than, &gt; [int]</h4>
+<p>Performs a numerical greater-than comparison.</p>
+<pre>
+foul.when("~Field~ not &gt; 5","Please enter a number larger than 5.");
+</pre>
+
+<h4>less-than, &lt; [int]</h4>
+<p>Performs a numerical less-than comparison.</p>
+<pre>
+foul.when("~Field~ not less-than 500","Please enter a number less than 500.");
+</pre>
+
+<h4>length, len, strlen, count [int]</h4>
+<p>This will compare the number of characters in a string against the passed parameter.</p>
+<pre>
+foul.when("~Field~ not length 4","Please enter a string 4 characters long.");
+
+<span class="comment">//can be combined with the greater-than or less-than tests.</span>
+foul.when("~Field~ length &gt; 4","Please enter a string 4 characters or less.");
+</pre>
+
+<h4>between, in-between, range [low int] [high int]</h4>
+<p>This will check if an input field's value falls between a range of numbers.</p>
+<pre>
+foul.when("~Field~ is not between 3 8","Please enter a value between 3 and 8");
+
+<span class="comment">//can be combined with the length test to check for a string length range</span>
+foul.when("~Field~ length not between 3 8","Please enter a string between 3 and 8 characters.");
+</pre>
+
+<h3>Specific Demographic/Datatype Tests</h3>
+
+<h4>url</h4>
+<p>This will test for a valid url using the pattern: protocol://domain.com/folder/page.ext</p>
+<pre>
+foul.when("~Field~ not url","Please enter a valid url");
+</pre>
+<p>This test has 3 sub tests which can be used as well. <strong>url-http</strong>, <strong>url-ftp</strong>, <strong>url-news</strong>.</p>
+
+<h4>zip, zipcode, zipcode-us, zip-us</h4>
+<p>This tests for a valid U.S. zip code in the '99999' or '99999-9999' form.</p>
+<pre>
+foul.when("~Zip~ not zip","Please enter a valid zip code.");
+</pre>
+
+<h4>state, state-us</h4>
+<p>This tests a field for a valid state appreviations. This will actually check for real states, not just the existence of
+2 characters.</p>
+<pre>
+foul.when("~State~ not state","Please enter a valid state.");
+</pre>
+
+<h4>zip-state-matches, zip-state-match, zip-state-match-us [state-field]</h4>
+<p>This is a neat test which compares the zip code input field and the state input field and makes sure the zip code is valid
+for the specified state.</p>
+<pre>
+foul.when("~Zip~ not zip-state-matches ~State~","Zip code is invalid for state.");
+</pre>
+
+
+<h4>ssn, social-security-number</h4>
+<p>This tests a field against the U.S. social security number pattern, 999-99-9999</p>
+<pre>
+foul.when("~ssnum~ not ssn","Please enter a valid Social Security Number");
+</pre>
+
+<h4>file-type [string extensions]</h4>
+<p>This test can be used on an file input field and will validate the file extension against the passed extension list.</p>
+<pre>
+foul.when("~txtfile~ not file-type 'txt doc'","Please upload a text or doc file.");
+</pre>
+
+
+<h4>file-type-image</h4>
+<p>This test can be used on an file input field and will validate the file extension against a list of predefined graphic extensions. Specifically: ani, b3d, bmp, dib, cam, clp, crw, cr2, cur, dcm, acr, ima, dcx, dds, djvu, iw44, ecw, emf, eps, fpx, fsh, g3, gif, icl, ico, ics, ids, iff, lbm, img, jp2, jpc, j2k, jpf, jpg, jpeg, jpe, jpm, kdc, ldf, lwf, mng, jng, nlm, nol, ngg, gsm, pbm, pcd, pcx, pgm, png, ppm, psd, psp, ras, sun, raw, rle, sff, sfw, sgi, rgb, sid, swf, tga, tif, tiff, wbmp, wmf, xbm, xpm</p>
+<pre>
+foul.when("~image~ not file-type-image","Please upload an image file.");
+</pre>
+
+
+<h4>file-type-executable</h4>
+<p>This test can be used on an file input field and will validate the file extension against a list of predefined executable extensions. Good to restrict anything malicious but a server-side check should also be employed. Extensions tested: ade, adp, bas, chm, cmd, cpl, crt, hlp, hta, inf, ins, isp, jse, lnk, mdb, mde, msc, msi, msp, mst, ocx, pcd, pif, pot, ppt, sct, shb, shs, sys, url, vb, vbe, vbs, wsc, wsf, exe, js, vbs, scr, com, bat, wsh, reg, dll
+</p>
+<pre>
+foul.when("~upload~ is file-type-executable","Invalid file type");
+</pre>
+
+<h4>vcc, valid-credit-card, valid-cc</h4>
+<p>This applies a checksum algorithm to test for a valid credit-card number. Use "4111 1111 1111 1111" to test a form since that number
+is a valid, testing credit card number.</p>
+<pre>
+foul.when("~credit #~ is not valid-cc","Please enter a valid credit card number.");
+</pre>
+
+<h4>date-us</h4>
+<p>This tests for a valid U.S. date in the form MM/DD/YY or MM/DD/YYYY.<p>
+<pre>
+foul.when("~dob~ is not date-us","Please enter a valid date (mm/dd/yy).");
+</pre>
+
+<h4>date-us-y2k</h4>
+<p>This tests for a valid U.S. date in the form MM/DD/YYYY forcing Y2K compliance.<p>
+<pre>
+foul.when("~dob~ is not date-us-y2k","Please enter a valid date (mm/dd/yyyy).");
+</pre>
+
+<h4>password</h4>
+<p>This test a text field for a password greater than 8 characters and not having any tabs, newlines or spaces.</p>
+<pre>
+foul.when("~db_pass~ is not password","Please enter a valid password.");
+</pre>
+
+<h4>password-strengh [int 0-100]</h4>
+<p>This tests the strength of a password using an algorithm and the passed value of 0 to 100, 100 being the stronger.</p>
+<pre>
+foul.when("~signup_pass~ is not password-strength 80","Please enter better password.");
+</pre>
+
+<h4>in [string1] [string2] [string*]</h4>
+<p>This will test a form field against a list of quote enclosed parameters.</p>
+<pre>
+foul.when("~password~ is in 'password' '1234' 'default'","Please pick a different password.");
+</pre>
+
+<h4>phone-us</h4>
+<p>Tests a field against the standard U.S. phone number format. 9 (999) 999-9999.</p>
+<pre>
+foul.when("~phone~ is not phone-us","Please enter a valid U.S. phone number.");
+</pre>
+
+<h3>Formatting Commands</h3>
+<p>To use field formatting you must use the foul.format() function.</p>
+<pre>
+foul.format("~phone~ as phone-us");
+</pre>
+
+<h4>number, integer</h4>
+<p>Formats a field to an integer, stripping any non-numeric characters.</p>
+
+<h4>floats, decimal</h4>
+<p>Formats a field to an float, stripping any non-numeric characters excluding the decimal point.</p>
+
+<h4>pad, padded, padding [int length] [char pad]</h4>
+<p>Left pads a text field to the length specified using the padding character. Character defauls to zero.</p>
+<pre>
+foul.format("~id~ as padded 10"); <span class="comment">// 345 = 0000000345</span>
+foul.format("~id~ as padded 10 $"); <span class="comment">// 345 = $$$$$$$345</span>
+</pre>
+
+<h4>phone-us</h4>
+<p>Formats a text field into a U.S. phone number using this format: 1 (999) 999-9999. It will strip out non-number
+characters and leave excess numbers for the validator to pickup.</p>
+
+<h4>credit-card, cc</h4>
+<p>Formats a credit card number to the form of 9999 9999 9999 9999.</p>
+
+<h4>ssn, social-security, social-security-number</h4>
+<p>Formats a social-security number to the form of 999-99-9999.</p>
+
+<h4>date-us</h4>
+<p>Formats a date to the form of mm/dd/yy. Please note that the date has to be entered in a date-like format before the
+format is applied correctly, ie mm-dd-yy.</p>
+
+<h4>date-us-y2k</h4>
+<p>Formats a date to the form of mm/dd/yyyy. Please note that the date has to be entered in a date-like format before the
+format is applied correctly, ie mm-dd-yy.</p>
+
+<h4>url, url-http</h4>
+<p>Mainly adds the http protocol to the url if left out. This test has 2 other variants for ftp and news, url-ftp and url-news.
+
+<h4>zip-us</h4>
+<p>Formats a zip code field to only numbers and to the form of 99999 or 99999-9999 depending on the number of characters entered.</p>
+
+<h4>uppercase</h4>
+<p>Transforms a text field to all uppercase. Good for state appreviation fields.</p>
+
+<h2>4 Additional Test/Format Packs</h2>
+
+<p>Test packs can be created and included which extend or change tests in foul to better suite the locale, such
+as the difference in dates around the world. Since foul is built on the prototype library, extending the <strong>TestBank</strong> and
+<strong>FormatBank</strong> classes are pretty easy. For more information in contributing a locale pack, see more info about <a href="#extending">Extending Foul.</a></p>
+
+<p>One test pack I have included with foul is one I started for European style dates. You can load these tests by including the foulbank-eu.js file into your web page.</p>
+
+<pre>
+&lt;script type="text/javascript" src="foulbank-eu.js"&gt;&lt/script&gt;
+</pre>
+
+<p>Just by including this file it automatically installs two additional tests for European dates in the form dd/mm/yy and dd/mm/yyyy. Below is an example of how to use them.</p>
+
+<pre>
+foul.when('~dob~ is not date-eu','Please enter a valid date');
+</pre>
+
+<p>This area of foul is seriously lacking. I would like to have lots of locale packs for all kinds of formats.</p>
+
+
+<a name="extending" /><h2>5 Extending Foul</h2>
+
+<p>The TestBank class contains all the tests called by foul. For example, the below code would result in true.</p>
+
+<pre>
+TestBank.state('MI');
+<span class="comment">// or</span>
+TestBank._eval('MI','state');
+</pre>
+
+<p>All the tests are created as functions named after the test themselves. For example, the '==' test function can be called by accessing TestBank.['==']().</p>
+
+<p>To extend the TestBank or add additional tests, create a separate javascript file and include it after the <strong>prototype.js</strong> and <strong>foul.js</strong> script includes. We'll call this <strong>mytests.js</strong>. Since foul uses prototype, we can use the <strong>Class.extend()</strong> function to add tests to the TestBank. Below is an example.</p>
+
+<pre>
+Object.extend(TestBank, {
+	
+	MyNewTest1: function(s,p){
+	},
+
+	MyNewTest1: function(s,p){
+	}
+
+});
+</pre>
+
+<p>If you're not familiar with prototype, this may look a little weird to you. For more informationa about using prototype, check out this <a href="http://www.sergiopereira.com/articles/prototype.js.html">great resource page</a>. Each test is defined as a function. The functions expect two parameters, the first is the subject of the test (a form field value or literal string) and then an array of additional tests or parameters which can be processed. The function must also return one of three values, a TRUE for passed test, FALSE for a failed test or NULL for a canceled test.</p>
+
+<p>To create a new test which checks a text field for uppercase'ness, check out the below code.</p>
+
+<pre>
+Object.extend(TestBank, {
+
+   uppercase: function(subject,param){
+
+     <span class="comment">//check for an empty subject//</span>
+     subject = this._eval(subject);
+     if ( this.empty(subject) ) {
+        return null; <span class="comment">//cancel test//</span>
+     }     
+
+     return ( subject == subject.toUpperCase() );
+   }
+});
+
+<span class="comment">//--8&lt;---------------------------------------//</span>
+
+foul.when("~state~ not uppercase","Please make state uppercase");
+</pre>
+
+<p>A couple things you may notice in the above code. Notice it passes the subject parameter through <strong>_eval(s)</strong>. This is because when foul processes the tests, all ~field~ and 'string' tokens are actually replaced by '##[0-9]' tokens and added to 
+a hash table. The <strong>_eval(s)</strong> function will check for and return the value of a '##num' token.</p>
+
+<p>The next thing you'll notice is checking to see if the subject is empty. If it is empty, the function returns null which cancels the test
+and goes to the next test. Please note that you can use other tests within other tests like the above example. <strong>this.empty()</strong> is a test defined in default TestBank class. You could use this new test in another one simply by calling <strong>this.uppercase(var)</strong>.
+
+<p>The last piece is the actual test. The function simply returns if an uppercased version of the subject equals the subject. Pretty simple.</p>
+
+<hr />
+<p align="right">Copyright 2006 &copy; Bryan English (bryan@bluelinecity.com) Foul 2.0</p>
+
+</body>
+</html>
